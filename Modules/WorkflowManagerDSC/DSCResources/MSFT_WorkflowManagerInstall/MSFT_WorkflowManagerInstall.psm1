@@ -36,11 +36,11 @@ function Get-TargetResource
         throw "The specified path for the XML Feed does not exist."
     }
 
-    Write-Verbose -Message "Getting details of installation of Workflow Manager"
+    Write-Verbose -Message "Getting details of installation of the Workflow Manager"
     
     $matchPath = "HKEY_LOCAL_MACHINE\\$($Script:UninstallPath.Replace('\','\\'))" + `
                  "\\$script:InstallKeyPattern"
-    $wmfPath = Get-ChildItem -Path "HKLM:\$Script:UninstallPath" | Where-Object -FilterScript {
+    $wmfPath = Get-ChildItem -Path "HKLM:\$Script:UninstallPath" -ErrorAction SilentlyContinue | Where-Object -FilterScript {
         $_.Name -match $matchPath
     }
 
@@ -75,7 +75,6 @@ function Set-TargetResource
         [System.String]
         $XMLFeedPath
     )
-    WebpiCmd.exe /Install /Products:WorkflowManager /XML:c:/WorkflowManagerFiles/feeds/shadow-webproductlist.xml  
     if ($Ensure -eq "Absent") 
     {
         throw "Uninstallation is not supported by the Workflow Manager DSC"

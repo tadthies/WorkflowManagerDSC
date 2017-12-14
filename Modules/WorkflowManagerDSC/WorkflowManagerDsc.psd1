@@ -69,7 +69,7 @@ NestedModules = @("modules\WorkflowManagerDsc.Util\WorkflowManagerDSC.Util.psm1"
 # FunctionsToExport = '*'
 
 # Cmdlets to export from this module
-CmdletsToExport = @('WmfDscInstalledProductVersion')
+CmdletsToExport = @('Get-WmfDscInstalledProductVersion')
 
 # Variables to export from this module
 # VariablesToExport = '*'
