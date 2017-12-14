@@ -52,7 +52,8 @@ function Get-TargetResource
     
     return @{
         Ensure = $localEnsure
-        Path = $Path
+        WebPIPath = $WebPIPath
+        XMLFeedPath = $XMLFeedPath
     }
 }
 
@@ -77,7 +78,7 @@ function Set-TargetResource
     )
     if ($Ensure -eq "Absent") 
     {
-        throw "Uninstallation is not supported by the Workflow Manager DSC"
+        throw "Uninstallation is not supported by Workflow Manager DSC"
     }
 
     Write-Verbose -Message "Starting installation of the Workflow Manager"
@@ -121,7 +122,7 @@ function Test-TargetResource
 
     if ($Ensure -eq "Absent") 
     {
-        throw "Uninstallation is not supported by the Workflow Manager DSC"
+        throw "Uninstallation is not supported by Workflow Manager DSC"
     }
     
     Write-Verbose -Message "Testing for installation of the Workflow Manager"

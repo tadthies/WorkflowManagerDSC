@@ -28,20 +28,25 @@ try
             #Remove-Module -Name "WorkflowManager" -Force -ErrorAction SilentlyContinue
             Import-Module $Global:CurrentWACCmdletModule -WarningAction SilentlyContinue 
 
-            Context "Office online server is not installed, but should be" {
+            Context "Workflow Manager is not installed, but should be" {
                 $testParams = @{
                     Ensure = "Present"
                     WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
                 }
 
                 Mock -CommandName Get-ChildItem -MockWith {
                     return @()
                 }
+
                 Mock -CommandName Start-Process -MockWith {
                     return @{
                         ExitCode = 0
                     }
+                }
+
+                Mock -CommandName Test-Path -MockWith {
+                    return $true
                 }
 
                 It "Returns that it is not installed from the get method" {
@@ -62,15 +67,19 @@ try
                 $testParams = @{
                     Ensure = "Present"
                     WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
                 }
 
                 Mock Get-ChildItem -MockWith {
                     return @(
                         @{
-                            Name = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Workflow Manager"
+                            Name = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Workflow Manager\1.0"
                         }
                     )
+                }
+
+                Mock -CommandName Test-Path -MockWith {
+                    return $true
                 }
 
                 It "Returns that it is installed from the get method" {
@@ -81,6 +90,46 @@ try
                     Test-TargetResource @testParams | Should Be $true
                 }
             }           
+
+            Context "Invalid path for installer or XML was passed" {
+                $testParams = @{
+                    Ensure = "Present"
+                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
+                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                }
+
+                Mock -CommandName Test-Path -MockWith {
+                    return $false
+                }
+
+                It "Should throw an error about invalid paths" {
+                    { Get-TargetResource @testParams } | Should throw "The specified path for the Web Platform Installer does not exist."
+                }
+            } 
+
+            Context "Trying to uninstall the product" {
+                $testParams = @{
+                    Ensure = "Absent"
+                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
+                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                }
+
+                Mock -CommandName Test-Path -MockWith {
+                    return $false
+                }
+
+                It "Should throw an error about invalid paths" {
+                    { Get-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
+                }
+
+                It "Should throw an error about invalid paths" {
+                    { Test-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
+                }
+
+                It "Should throw an error about invalid paths" {
+                    { Set-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
+                }
+            } 
         }
     }
 }
