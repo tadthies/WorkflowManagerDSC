@@ -1,4 +1,4 @@
-function Invoke-OosDscUnitTestSuite() {
+function Invoke-WFDscUnitTestSuite() {
     param
     (
         [parameter(Mandatory = $false)] [System.String]  $TestResultsFile,
@@ -6,7 +6,7 @@ function Invoke-OosDscUnitTestSuite() {
         [parameter(Mandatory = $false)] [System.Boolean] $CalculateTestCoverage = $true
     )
 
-    Write-Verbose -Message "Commencing OfficeOnlineServerDsc unit tests"
+    Write-Verbose -Message "Commencing WorkflowManagerDsc unit tests"
 
     $repoDir = Join-Path $PSScriptRoot "..\..\" -Resolve
 
@@ -15,7 +15,7 @@ function Invoke-OosDscUnitTestSuite() {
         Write-Warning -Message ("Code coverage statistics are being calculated. This will slow the " + `
                                 "start of the tests by several minutes while the code matrix is " + `
                                 "built. Please be patient")
-        Get-ChildItem "$repoDir\modules\OfficeOnlineServerDsc\**\*.psm1" -Recurse | ForEach-Object { 
+        Get-ChildItem "$repoDir\modules\WorkflowManagerDsc\**\*.psm1" -Recurse | ForEach-Object { 
             if ($_.FullName -notlike "*\DSCResource.Tests\*") {
                 $testCoverageFiles += $_.FullName    
             }
@@ -28,21 +28,21 @@ function Invoke-OosDscUnitTestSuite() {
         $testResultSettings.Add("OutputFormat", "NUnitXml" )
         $testResultSettings.Add("OutputFile", $TestResultsFile)
     }
-    Import-Module "$repoDir\modules\OfficeOnlineServerDsc\OfficeOnlineServerDsc.psd1"
+    Import-Module "$repoDir\modules\WorkflowManagerDsc\WorkflowManagerDsc.psd1"
     
     
     $versionsToTest = (Get-ChildItem (Join-Path $repoDir "\Tests\Unit\Stubs\")).Name
     
     # Import the first stub found so that there is a base module loaded before the tests start
     $firstVersion = $versionsToTest | Select-Object -First 1
-    Import-Module (Join-Path $repoDir "\Tests\Unit\Stubs\$firstVersion\OfficeWebApps.psm1") -WarningAction SilentlyContinue
+    Import-Module (Join-Path $repoDir "\Tests\Unit\Stubs\$firstVersion\WorkflowManager.psm1") -WarningAction SilentlyContinue
 
     $testsToRun = @()
     $versionsToTest | ForEach-Object {
         $testsToRun += @(@{
             'Path' = (Join-Path -Path $repoDir -ChildPath "\Tests\Unit")
             'Parameters' = @{ 
-                'WACCmdletModule' = (Join-Path $repoDir "\Tests\Unit\Stubs\$_\OfficeWebApps.psm1")
+                'WACCmdletModule' = (Join-Path $repoDir "\Tests\Unit\Stubs\$_\WorkflowManager.psm1")
             }
         })
     }
