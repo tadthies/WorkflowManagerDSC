@@ -1,0 +1,10 @@
+﻿*.suo
+*.user
+*.coverage
+.vs
+.psproj
+.sln
+Modules/OfficeOnlineServerDsc/DscResource.Tests
+Modules/OfficeOnlineServerDsc/DscResource.Tests/*
+node_modules
+node_modules/*
