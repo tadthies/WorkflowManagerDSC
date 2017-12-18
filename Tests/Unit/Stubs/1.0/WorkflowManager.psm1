@@ -1,332 +1,96 @@
-function Get-OfficeWebAppsFarm { 
+function Get-WFFarm { 
   [CmdletBinding()]
 param()
 
  
  } 
 
-function Get-OfficeWebAppsHost { 
+function Get-SBNamespace { 
   [CmdletBinding()]
 param()
 
  
  } 
 
-function Get-OfficeWebAppsMachine { 
-  [CmdletBinding()]
-param()
-
- 
- } 
-
-function New-OfficeWebAppsFarm { 
-  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-param(
-    [switch]
-    ${Force},
-
-    [string]
-    ${FarmOU},
-
-    [string]
-    ${InternalURL},
-
-    [string]
-    ${ExternalURL},
-
-    [switch]
-    ${AllowHttp},
-
-    [switch]
-    ${SSLOffloaded},
-
-    [string]
-    ${CertificateName},
-
-    [switch]
-    ${EditingEnabled},
-
-    [string]
-    ${Proxy},
-
-    [string]
-    ${LogLocation},
-
-    [System.Nullable[uint32]]
-    ${LogRetentionInDays},
-
-    [string]
-    ${LogVerbosity},
-
-    [string]
-    ${CacheLocation},
-
-    [System.Nullable[int]]
-    ${MaxMemoryCacheSizeInMB},
-
-    [System.Nullable[uint32]]
-    ${DocumentInfoCacheSize},
-
-    [System.Nullable[int]]
-    ${CacheSizeInGB},
-
-    [switch]
-    ${ClipartEnabled},
-
-    [switch]
-    ${IgnoreDeserializationFilter},
-
-    [switch]
-    ${TranslationEnabled},
-
-    [System.Nullable[int]]
-    ${MaxTranslationCharacterCount},
-
-    [string]
-    ${TranslationServiceAppId},
-
-    [string]
-    ${TranslationServiceAddress},
-
-    [string]
-    ${RenderingLocalCacheLocation},
-
-    [System.Nullable[uint32]]
-    ${RecycleActiveProcessCount},
-
-    [switch]
-    ${AllowCEIP},
-
-    [System.Nullable[int]]
-    ${ExcelRequestDurationMax},
-
-    [System.Nullable[int]]
-    ${ExcelSessionTimeout},
-
-    [System.Nullable[int]]
-    ${ExcelWorkbookSizeMax},
-
-    [System.Nullable[int]]
-    ${ExcelPrivateBytesMax},
-
-    [System.Nullable[int]]
-    ${ExcelConnectionLifetime},
-
-    [System.Nullable[int]]
-    ${ExcelExternalDataCacheLifetime},
-
-    [switch]
-    ${ExcelAllowExternalData},
-
-    [switch]
-    ${ExcelWarnOnDataRefresh},
-
-    [switch]
-    ${OpenFromUrlEnabled},
-
-    [switch]
-    ${OpenFromUncEnabled},
-
-    [switch]
-    ${OpenFromUrlThrottlingEnabled},
-
-    [switch]
-    ${PicturePasteDisabled},
-
-    [switch]
-    ${RemovePersonalInformationFromLogs},
-
-    [switch]
-    ${AllowHttpSecureStoreConnections})
-
- 
- } 
-
-function New-OfficeWebAppsHost { 
+ function Get-SBClientConfiguration { 
   [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)]
-    [string]
-    ${Domain})
+  [array]
+  ${Namespaces}
+)
 
  
  } 
 
-function New-OfficeWebAppsMachine { 
-  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-param(
-    [switch]
-    ${Force},
-
-    [Parameter(Mandatory=$true, Position=0)]
-    [string]
-    ${MachineToJoin},
-
-    [string[]]
-    ${Roles})
-
- 
- } 
-
-function Remove-OfficeWebAppsHost { 
-  [CmdletBinding()]
-param(
-    [Parameter(Mandatory=$true)]
-    [string]
-    ${Domain})
-
- 
- } 
-
-function Remove-OfficeWebAppsMachine { 
-  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-param()
-
- 
- } 
-
-function Repair-OfficeWebAppsFarm { 
-  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-param(
-    [switch]
-    ${Force})
-
- 
- } 
-
-function Set-OfficeWebAppsFarm { 
-  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-param(
-    [switch]
-    ${Force},
-
-    [string]
-    ${FarmOU},
-
-    [string]
-    ${InternalURL},
-
-    [string]
-    ${ExternalURL},
-
-    [switch]
-    ${AllowHttp},
-
-    [switch]
-    ${SSLOffloaded},
-
-    [string]
-    ${CertificateName},
-
-    [switch]
-    ${EditingEnabled},
-
-    [string]
-    ${Proxy},
-
-    [string]
-    ${LogLocation},
-
-    [System.Nullable[uint32]]
-    ${LogRetentionInDays},
-
-    [string]
-    ${LogVerbosity},
-
-    [string]
-    ${CacheLocation},
-
-    [System.Nullable[int]]
-    ${MaxMemoryCacheSizeInMB},
-
-    [System.Nullable[uint32]]
-    ${DocumentInfoCacheSize},
-
-    [System.Nullable[int]]
-    ${CacheSizeInGB},
-
-    [switch]
-    ${ClipartEnabled},
-
-    [switch]
-    ${IgnoreDeserializationFilter},
-
-    [switch]
-    ${TranslationEnabled},
-
-    [System.Nullable[int]]
-    ${MaxTranslationCharacterCount},
-
-    [string]
-    ${TranslationServiceAppId},
-
-    [string]
-    ${TranslationServiceAddress},
-
-    [string]
-    ${RenderingLocalCacheLocation},
-
-    [System.Nullable[uint32]]
-    ${RecycleActiveProcessCount},
-
-    [switch]
-    ${AllowCEIP},
-
-    [System.Nullable[int]]
-    ${ExcelRequestDurationMax},
-
-    [System.Nullable[int]]
-    ${ExcelSessionTimeout},
-
-    [System.Nullable[int]]
-    ${ExcelWorkbookSizeMax},
-
-    [System.Nullable[int]]
-    ${ExcelPrivateBytesMax},
-
-    [System.Nullable[int]]
-    ${ExcelConnectionLifetime},
-
-    [System.Nullable[int]]
-    ${ExcelExternalDataCacheLifetime},
-
-    [switch]
-    ${ExcelAllowExternalData},
-
-    [switch]
-    ${ExcelWarnOnDataRefresh},
-
-    [switch]
-    ${OpenFromUrlEnabled},
-
-    [switch]
-    ${OpenFromUncEnabled},
-
-    [switch]
-    ${OpenFromUrlThrottlingEnabled},
-
-    [switch]
-    ${PicturePasteDisabled},
-
-    [switch]
-    ${RemovePersonalInformationFromLogs},
-
-    [switch]
-    ${AllowHttpSecureStoreConnections})
-
- 
- } 
-
-function Set-OfficeWebAppsMachine { 
+function New-SBFarm {
   [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
 param(
     [string]
-    ${Master},
+    ${SBFarmDBConnectionString},
 
-    [string[]]
-    ${Roles})
+    [System.Security.SecureString]
+    ${CertificateAutoGenerationKey}
+)
+}
 
- 
- } 
+function Add-SBHost {
+  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+param(
+    [string]
+    ${SBFarmDBConnectionString},
 
+    [System.Security.SecureString]
+    ${RunAsPassword},
 
+    [System.Boolean]
+    ${EnableFirewallRules},
+
+    [System.Security.SecureString]
+    ${CertificateAutoGenerationKey}
+)
+}
+
+function New-SBNamespace {
+  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+param(
+    [string]
+    ${Name},
+
+    [array]
+    ${ManageUsers}
+)
+}
+
+function New-WFFarm {
+  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+param(
+    [string]
+    ${WFFarmDBConnectionString},
+
+    [System.Security.SecureString]
+    ${CertificateAutoGenerationKey}
+)
+}
+
+function Add-WFHost {
+  [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+param(
+    [string]
+    ${WFFarmDBConnectionString},
+
+    [System.Security.SecureString]
+    ${RunAsPassword},
+
+    [System.Boolean]
+    ${EnableFirewallRules},
+
+    [switch]
+    ${EnableHttpPort},
+
+    [System.Security.SecureString]
+    ${CertificateAutoGenerationKey},
+
+    [object]
+    ${SBClientConfiguration}
+)
+}

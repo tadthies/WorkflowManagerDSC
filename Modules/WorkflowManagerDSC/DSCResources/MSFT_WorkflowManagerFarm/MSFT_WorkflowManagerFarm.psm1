@@ -130,12 +130,23 @@ function Set-TargetResource
 
     $SBConfig = Get-SBClientConfiguration -Namespaces $SBNamespace
 
-    Add-WFHost -WFFarmDBConnectionString $dbConnstring `
-        -RunAsPassword $RunasPassword.Password `
-        -EnableFirewallRules $EnableFirewallRules `
-        -EnableHttpPort $EnableHttpPort `
-        -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
-        -SBClientConfiguration $SBConfig
+    if($EnableHttpPort)
+    {
+        Add-WFHost -WFFarmDBConnectionString $dbConnstring `
+            -RunAsPassword $RunasPassword.Password `
+            -EnableFirewallRules $EnableFirewallRules `
+            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
+            -SBClientConfiguration $SBConfig `
+            -AllowHttpPort
+    }
+    else
+    {
+        Add-WFHost -WFFarmDBConnectionString $dbConnstring `
+            -RunAsPassword $RunasPassword.Password `
+            -EnableFirewallRules $EnableFirewallRules `
+            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
+            -SBClientConfiguration $SBConfig
+    }
 }
 
 
