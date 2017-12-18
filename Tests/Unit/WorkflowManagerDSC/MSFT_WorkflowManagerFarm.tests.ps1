@@ -24,112 +24,193 @@ try
     InModuleScope $Script:DSCResourceName {
         Describe "WorkflowManagerFarm [WAC server version $((Get-Item $Global:CurrentWACCmdletModule).Directory.BaseName)]" {
 
+            $mockPassword = ConvertTo-SecureString -String "password" -AsPlainText -Force
+            $mockFarmAccount = New-Object -TypeName "System.Management.Automation.PSCredential" `
+                                          -ArgumentList @("username", $mockPassword)
+
             Import-Module (Join-Path $PSScriptRoot "..\..\..\Modules\WorkflowManagerDsc" -Resolve)
             #Remove-Module -Name "WorkflowManager" -Force -ErrorAction SilentlyContinue
             Import-Module $Global:CurrentWACCmdletModule -WarningAction SilentlyContinue 
 
-            Context "Workflow Manager is not installed, but should be" {
+            Mock -CommandName Remove-WFHost -MockWith {
+                return @()
+            }
+
+            Mock -CommandName Remove-SBHost -MockWith {
+                return @()
+            }
+
+            Context "Workflow Manager farm is not configured, and should not be" {
                 $testParams = @{
-                    Ensure = "Present"
-                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                    Ensure = "Absent"
+                    DatabaseServer = "localhost"
+                    CertAutoGenerationKey = $mockFarmAccount
+                    RunAsPassword = $mockFarmAccount
+                    FarmAccount = $mockFarmAccount
+                    SBNamespace = "ServiceBus"
                 }
 
-                Mock -CommandName Get-ChildItem -MockWith {
+                Mock -CommandName Get-WFFarm -MockWith {
+                    throw "Farm does not exist"
+                }
+
+                It "Properly removes the current server from the Farm" {
+                    Set-TargetResource @testParams
+                    Assert-MockCalled Remove-SBHost
+                    Assert-MockCalled Remove-WFHost
+                }
+
+                It "Returns true from the test method" {
+                    Test-TargetResource @testParams | Should Be $true
+                }
+
+                It "Returns an empty database connection string" {
+                    (Get-TargetResource @testParams).DatabaseServer | Should be $null
+                }
+            }
+
+            Context "Workflow Manager farm is not configured, and should be without allowing HTTP" {
+                $testParams = @{
+                    Ensure = "Present"
+                    DatabaseServer = "localhost"
+                    CertAutoGenerationKey = $mockFarmAccount
+                    RunAsPassword = $mockFarmAccount
+                    FarmAccount = $mockFarmAccount
+                    SBNamespace = "ServiceBus"
+                }
+
+                Mock -CommandName Get-WFFarm -MockWith {
+                    throw "Farm does not exist"
+                }
+
+                Mock -CommandName New-SBFarm -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Add-SBHost -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName New-SBNamespace -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName New-WFFarm -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Get-SBClientConfiguration -MockWith {
                     return @()
                 }
 
-                Mock -CommandName Start-Process -MockWith {
-                    return @{
-                        ExitCode = 0
-                    }
+                Mock -CommandName Add-WFHost -MockWith {
+                    return $null
                 }
 
-                Mock -CommandName Test-Path -MockWith {
-                    return $true
-                }
-
-                It "Returns that it is not installed from the get method" {
-                    (Get-TargetResource @testParams).Ensure | Should Be "Absent"
+                It "Properly configures the current server from the Farm" {
+                    Set-TargetResource @testParams
+                    Assert-MockCalled New-SBFarm
+                    Assert-MockCalled Add-SBHost
+                    Assert-MockCalled New-SBNamespace
+                    Assert-MockCalled New-WFFarm
+                    Assert-MockCalled Get-SBClientConfiguration
+                    Assert-MockCalled Add-WFHost
                 }
 
                 It "Returns false from the test method" {
                     Test-TargetResource @testParams | Should Be $false
                 }
 
-                It "Starts the install from the set method" {
-                    Set-TargetResource @testParams
-                    Assert-MockCalled Start-Process
+                It "Returns an empty database connection string" {
+                    (Get-TargetResource @testParams).DatabaseServer | Should be $null
                 }
             }
 
-            Context "Workflow Manager is installed and should be" {
+            Context "Workflow Manager farm is not configured, and should be while allowing HTTP" {
                 $testParams = @{
                     Ensure = "Present"
-                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                    DatabaseServer = "localhost"
+                    CertAutoGenerationKey = $mockFarmAccount
+                    RunAsPassword = $mockFarmAccount
+                    FarmAccount = $mockFarmAccount
+                    EnableHttpPort = $true
+                    SBNamespace = "ServiceBus"
                 }
 
-                Mock Get-ChildItem -MockWith {
+                Mock -CommandName Get-WFFarm -MockWith {
+                    throw "Farm does not exist"
+                }
+
+                Mock -CommandName New-SBFarm -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Add-SBHost -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName New-SBNamespace -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName New-WFFarm -MockWith {
+                    return $null
+                }
+
+                Mock -CommandName Get-SBClientConfiguration -MockWith {
+                    return @()
+                }
+
+                Mock -CommandName Add-WFHost -MockWith {
+                    return $null
+                }
+
+                It "Properly configures the current server from the Farm" {
+                    Set-TargetResource @testParams
+                    Assert-MockCalled New-SBFarm
+                    Assert-MockCalled Add-SBHost
+                    Assert-MockCalled New-SBNamespace
+                    Assert-MockCalled New-WFFarm
+                    Assert-MockCalled Get-SBClientConfiguration
+                    Assert-MockCalled Add-WFHost
+                }
+
+                It "Returns false from the test method" {
+                    Test-TargetResource @testParams | Should Be $false
+                }
+
+                It "Returns an empty database connection string" {
+                    (Get-TargetResource @testParams).DatabaseServer | Should be $null
+                }
+            }
+
+            Context "Workflow Manager farm is already configured, and should be" {
+                $testParams = @{
+                    Ensure = "Present"
+                    DatabaseServer = "localhost"
+                    CertAutoGenerationKey = $mockFarmAccount
+                    RunAsPassword = $mockFarmAccount
+                    FarmAccount = $mockFarmAccount
+                    EnableHttpPort = $true
+                    SBNamespace = "ServiceBus"
+                }
+    
+                Mock -CommandName Get-WFFarm -MockWith {
                     return @(
                         @{
-                            Name = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Workflow Manager\1.0"
+                            WFFarmDBConnectionString = "localhost"
                         }
                     )
-                }
-
-                Mock -CommandName Test-Path -MockWith {
-                    return $true
-                }
-
-                It "Returns that it is installed from the get method" {
-                    (Get-TargetResource @testParams).Ensure | Should Be "Present"
                 }
 
                 It "Returns true from the test method" {
                     Test-TargetResource @testParams | Should Be $true
                 }
-            }           
 
-            Context "Invalid path for installer or XML was passed" {
-                $testParams = @{
-                    Ensure = "Present"
-                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
+                It "Returns the correct database connection string" {
+                    (Get-TargetResource @testParams).DatabaseServer | Should be "localhost"
                 }
-
-                Mock -CommandName Test-Path -MockWith {
-                    return $false
-                }
-
-                It "Should throw an error about invalid paths" {
-                    { Get-TargetResource @testParams } | Should throw "The specified path for the Web Platform Installer does not exist."
-                }
-            } 
-
-            Context "Trying to uninstall the product" {
-                $testParams = @{
-                    Ensure = "Absent"
-                    WebPIPath = "C:/WFFiles/bin/WebPICmd.exe"
-                    XMLFeedPath = "C:/WFFiles/Feeds/Latest/webproductlist.xml"
-                }
-
-                Mock -CommandName Test-Path -MockWith {
-                    return $false
-                }
-
-                It "Should throw an error about invalid paths" {
-                    { Get-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
-                }
-
-                It "Should throw an error about invalid paths" {
-                    { Test-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
-                }
-
-                It "Should throw an error about invalid paths" {
-                    { Set-TargetResource @testParams } | Should throw "Uninstallation is not supported by Workflow Manager DSC"
-                }
-            } 
+            }
         }
     }
 }

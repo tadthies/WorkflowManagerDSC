@@ -59,13 +59,13 @@ function Get-TargetResource
     catch {
         $result = @{
             Ensure = "Absent"
-            DatabaseServer = $DatabaseServer
-            CredAutoGenerationKey = $CertAutoGenerationKey
-            FarmAccount = $FarmAccount
-            RunAsPassword = $RunAsPassword
-            EnableFirewallRules = $EnableFirewallRules
-            EnableHttpPort = $EnableHttpPort
-            SBNamespace = $SBNamespace
+            DatabaseServer = $null
+            CredAutoGenerationKey = $null
+            FarmAccount = $null
+            RunAsPassword = $null
+            EnableFirewallRules = $null
+            EnableHttpPort = $null
+            SBNamespace = $null
         }
     }
 
@@ -112,40 +112,48 @@ function Set-TargetResource
         $SBNamespace = "ServiceBus"
     )
     
-    $dbConnstring = "data source=" + $DatabaseServer + ";integrated security=true"
-
-    New-SBFarm -SBFarmDBConnectionString $dbConnstring `
-        -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
-
-    Add-SBHost -SBFarmDBConnectionString $dbConnstring `
-        -RunAsPassword $RunAsPassword.Password `
-        -EnableFirewallRules $EnableFirewallRules `
-        -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
-
-    New-SBNamespace -Name $SBNamespace `
-        -ManageUsers $FarmAccount.UserName
-
-    New-WFFarm -WFFarmDBConnectionString $dbConnstring `
-        -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
-
-    $SBConfig = Get-SBClientConfiguration -Namespaces $SBNamespace
-
-    if($EnableHttpPort)
+    if($Ensure.ToLower() -eq "present")
     {
-        Add-WFHost -WFFarmDBConnectionString $dbConnstring `
-            -RunAsPassword $RunasPassword.Password `
+        $dbConnstring = "data source=" + $DatabaseServer + ";integrated security=true"
+
+        New-SBFarm -SBFarmDBConnectionString $dbConnstring `
+            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
+
+        Add-SBHost -SBFarmDBConnectionString $dbConnstring `
+            -RunAsPassword $RunAsPassword.Password `
             -EnableFirewallRules $EnableFirewallRules `
-            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
-            -SBClientConfiguration $SBConfig `
-            -AllowHttpPort
+            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
+
+        New-SBNamespace -Name $SBNamespace `
+            -ManageUsers $FarmAccount.UserName
+
+        New-WFFarm -WFFarmDBConnectionString $dbConnstring `
+            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password
+
+        $SBConfig = Get-SBClientConfiguration -Namespaces $SBNamespace
+
+        if($EnableHttpPort)
+        {
+            Add-WFHost -WFFarmDBConnectionString $dbConnstring `
+                -RunAsPassword $RunasPassword.Password `
+                -EnableFirewallRules $EnableFirewallRules `
+                -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
+                -SBClientConfiguration $SBConfig `
+                -EnableHttpPort
+        }
+        else
+        {
+            Add-WFHost -WFFarmDBConnectionString $dbConnstring `
+                -RunAsPassword $RunasPassword.Password `
+                -EnableFirewallRules $EnableFirewallRules `
+                -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
+                -SBClientConfiguration $SBConfig
+        }
     }
-    else
-    {
-        Add-WFHost -WFFarmDBConnectionString $dbConnstring `
-            -RunAsPassword $RunasPassword.Password `
-            -EnableFirewallRules $EnableFirewallRules `
-            -CertificateAutoGenerationKey $CertAutoGenerationKey.Password `
-            -SBClientConfiguration $SBConfig
+    else {
+        Write-Verbose -Message "Removing the current server from the Workflow Farm"
+        Remove-SBHost
+        Remove-WFHost
     }
 }
 

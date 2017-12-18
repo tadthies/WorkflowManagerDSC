@@ -12,7 +12,7 @@ param()
  
  } 
 
- function Get-SBClientConfiguration { 
+function Get-SBClientConfiguration { 
   [CmdletBinding()]
 param(
   [array]
@@ -20,7 +20,21 @@ param(
 )
 
  
- } 
+}
+
+function Remove-SBHost { 
+  [CmdletBinding()]
+param()
+
+ 
+}
+
+function Remove-WFHost { 
+  [CmdletBinding()]
+param()
+
+ 
+}
 
 function New-SBFarm {
   [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
