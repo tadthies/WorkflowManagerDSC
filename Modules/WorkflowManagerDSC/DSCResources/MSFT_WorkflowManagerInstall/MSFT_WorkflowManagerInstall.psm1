@@ -93,8 +93,7 @@ function Set-TargetResource
          }
         Default {
             throw ("The Workflow Manager installation failed. Exit code " + `
-                   "'$($installer.ExitCode)' was returned. Check " + `
-                   "$($env:TEMP)\Wac Server Setup.log for further information")
+                   "'$($installer.ExitCode)' was returned.")
         }
     }
 }
